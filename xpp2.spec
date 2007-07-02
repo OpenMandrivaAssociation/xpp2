@@ -42,6 +42,7 @@ Source0:        http://www.extreme.indiana.edu/xgws/xsoap/xpp/download/PullParse
 Patch0:         xpp2-build_xml.patch
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-junit >= 0:1.6
+BuildRequires:  java-devel
 BuildRequires:  jpackage-utils >= 0:1.6
 BuildRequires:  junit
 BuildRequires:  xerces-j2
