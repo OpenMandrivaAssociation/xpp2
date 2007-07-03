@@ -28,6 +28,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+%define gcj_support  1
 %define originalname PullParser
 
 Summary:        XML Pull Parser
@@ -49,7 +50,14 @@ BuildRequires:  xerces-j2
 BuildRequires:  xml-commons-apis
 Requires:       xml-commons-apis
 Requires:       jpackage-utils
+%if %{gcj_support}
+Requires(post): java-gcj-compat
+Requires(postun): java-gcj-compat
+BuildRequires:  java-gcj-compat-devel
+%else
 BuildArch:      noarch
+BuildRequires:  java-devel
+%endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
@@ -129,8 +137,20 @@ mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
 cp -pr src/java/samples/* $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
 ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/%{name}
 
+%if %{gcj_support}
+%{_bindir}/aot-compile-rpm
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%if %{gcj_support}
+%post
+%{update_gcjdb}
+
+%postun
+%{clean_gcjdb}
+%endif
 
 %files
 %defattr(0644,root,root,0755)
@@ -144,6 +164,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_javadir}/%{name}-standard-%{version}.jar
 %{_javadir}/%{name}-x2.jar
 %{_javadir}/%{name}-x2-%{version}.jar
+%if %{gcj_support}
+%dir %{_libdir}/gcj/%{name}
+%attr(-,root,root) %{_libdir}/gcj/%{name}/*
+%endif
 
 %files javadoc
 %defattr(0644,root,root,0755)
