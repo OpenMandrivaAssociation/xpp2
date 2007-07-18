@@ -34,7 +34,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        %mkrel 6.1.1
+Release:        %mkrel 6.1.2
 Epoch:          0
 License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
@@ -47,8 +47,8 @@ BuildRequires:  java-devel
 BuildRequires:  jpackage-utils >= 0:1.6
 BuildRequires:  junit
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-apis
-Requires:       xml-commons-apis
+BuildRequires:  xml-commons-jaxp-1.3-apis
+Requires:       xml-commons-jaxp-1.3-apis
 Requires:       jpackage-utils
 %if %{gcj_support}
 Requires(post): java-gcj-compat
@@ -96,7 +96,7 @@ find . -name "*.jar" -exec rm -f {} \;
 
 %build
 export OPT_JAR_LIST="ant/ant-junit junit"
-export CLASSPATH=$(build-classpath xerces-j2 xml-commons-apis)
+export CLASSPATH=$(build-classpath xerces-j2 xml-commons-jaxp-1.3-apis)
 %{ant} all api api.impl
 CLASSPATH=$CLASSPATH:$(build-classpath junit):build/tests:build/lib/PullParser-2.1.10.jar
 %{java} AllTests
