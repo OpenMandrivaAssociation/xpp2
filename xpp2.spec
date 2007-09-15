@@ -34,7 +34,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        %mkrel 6.1.2
+Release:        %mkrel 6.1.3
 Epoch:          0
 License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
@@ -51,8 +51,6 @@ BuildRequires:  xml-commons-jaxp-1.3-apis
 Requires:       xml-commons-jaxp-1.3-apis
 Requires:       jpackage-utils
 %if %{gcj_support}
-Requires(post): java-gcj-compat
-Requires(postun): java-gcj-compat
 BuildRequires:  java-gcj-compat-devel
 %else
 BuildArch:      noarch
