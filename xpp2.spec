@@ -34,7 +34,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        %mkrel 6.1.3
+Release:        %mkrel 6.1.4
 Epoch:          0
 License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
@@ -44,7 +44,7 @@ Patch0:         xpp2-build_xml.patch
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-junit >= 0:1.6
 BuildRequires:  java-devel
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  junit
 BuildRequires:  xerces-j2
 BuildRequires:  xml-commons-jaxp-1.3-apis
