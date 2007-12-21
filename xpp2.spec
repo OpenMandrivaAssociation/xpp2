@@ -56,6 +56,7 @@ BuildRequires:  java-gcj-compat-devel
 BuildArch:      noarch
 BuildRequires:  java-devel
 %endif
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
 XML Pull Parser 2 (XPP2) is a simple and fast incremental XML parser.
