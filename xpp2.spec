@@ -34,7 +34,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        %mkrel 6.1.4
+Release:        %mkrel 6.1.5
 Epoch:          0
 License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
@@ -87,8 +87,7 @@ Requires:       %{name} = %{epoch}:%{version}
 
 %prep
 %setup -q -n %{originalname}%{version}
-# remove all binary libs
-find . -name "*.jar" -exec rm -f {} \;
+%remove_java_binaries
 
 %patch0 -b .sav
 
@@ -119,7 +118,7 @@ cp -p build/lib/%{originalname}-x2-%{version}.jar \
 mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
 mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
 cp -pr doc/api/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
-cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
+#cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
 ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
 
