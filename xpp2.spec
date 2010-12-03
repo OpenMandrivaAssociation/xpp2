@@ -34,7 +34,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        %mkrel 6.1.7
+Release:        %mkrel 6.1.8
 Epoch:          0
 License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
