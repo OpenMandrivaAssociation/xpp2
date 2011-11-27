@@ -33,7 +33,7 @@
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        9.3
+Release:        9.5
 License:        ASL 1.1
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
 Group:          Development/Other
