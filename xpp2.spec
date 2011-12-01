@@ -92,43 +92,43 @@ CLASSPATH=$CLASSPATH:$(build-classpath junit):build/tests:build/lib/PullParser-2
 java AllTests
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 # jars
-mkdir -p $RPM_BUILD_ROOT%{_javadir}
+mkdir -p %{buildroot}%{_javadir}
 
 cp -p build/lib/%{originalname}-intf-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-intf-%{version}.jar
+  %{buildroot}%{_javadir}/%{name}-intf-%{version}.jar
 cp -p build/lib/%{originalname}-standard-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-standard-%{version}.jar
+  %{buildroot}%{_javadir}/%{name}-standard-%{version}.jar
 cp -p build/lib/%{originalname}-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
+  %{buildroot}%{_javadir}/%{name}-%{version}.jar
 cp -p build/lib/%{originalname}-x2-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-x2-%{version}.jar
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  %{buildroot}%{_javadir}/%{name}-x2-%{version}.jar
+(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
 
 # javadoc
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
-cp -pr doc/api/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
-cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
+mkdir -p %{buildroot}%{_javadocdir}/%{name}-%{version}/api
+mkdir -p %{buildroot}%{_javadocdir}/%{name}-%{version}/api_impl
+cp -pr doc/api/* %{buildroot}%{_javadocdir}/%{name}-%{version}/api
+cp -pr doc/api_impl/* %{buildroot}%{_javadocdir}/%{name}-%{version}/api_impl
+ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
 
 
 rm -rf doc/{build.txt,api,api_impl}
 
 # doc
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
-cp -pr doc/* $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/doc/%{name}
+mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
+cp -pr doc/* %{buildroot}%{_datadir}/doc/%{name}-%{version}
+ln -s %{name}-%{version} %{buildroot}%{_datadir}/doc/%{name}
 
 # demo
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-cp -pr src/java/samples/* $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/%{name}-%{version}
+cp -pr src/java/samples/* %{buildroot}%{_datadir}/%{name}-%{version}
+ln -s %{name}-%{version} %{buildroot}%{_datadir}/%{name}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %files
 %defattr(0644,root,root,0755)
