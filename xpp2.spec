@@ -28,36 +28,44 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+%define gcj_support  1
 %define originalname PullParser
 
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        9.5
-License:        ASL 1.1
+Release:        6.1.12
+Epoch:          0
+License:        Apache Software License
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
-Group:          Development/Other
+Group:          Development/Java
 Source0:        http://www.extreme.indiana.edu/xgws/xsoap/xpp/download/PullParser2/PullParser2.1.10.tgz
 Patch0:         xpp2-build_xml.patch
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-junit >= 0:1.6
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-devel
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  junit
-BuildRequires:  xml-commons-apis
-Requires:       xml-commons-apis
+BuildRequires:  xerces-j2
+BuildRequires:  xml-commons-jaxp-1.3-apis
+Requires:       xml-commons-jaxp-1.3-apis
 Requires:       jpackage-utils
+%if %{gcj_support}
+BuildRequires:  java-gcj-compat-devel
+%else
 BuildArch:      noarch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires:  java-devel
+%endif
+
 
 %description
 XML Pull Parser 2 (XPP2) is a simple and fast incremental XML parser.
-NOTE: XPP2 is no longer developed and is on maintenance mode.
+NOTE: XPP2 is no longer developed and is on maintenance mode. 
 All active development concentrates on its successor XPP3/MXP1.
 
 %package javadoc
 Summary:        Javadoc for %{name}
 Group:          Development/Java
-Requires:       jpackage-utils
 
 %description javadoc
 %{summary}.
@@ -72,63 +80,71 @@ Group:          Development/Java
 %package demo
 Summary:        Samples for %{name}
 Group:          Development/Java
-Requires:       %{name} = %{version}
+Requires:       %{name} = %{epoch}:%{version}
 
 %description demo
 %{summary}.
 
 %prep
 %setup -q -n %{originalname}%{version}
-# remove all binary libs
-find . -name "*.jar" -exec rm -f {} \;
+%remove_java_binaries
 
 %patch0 -b .sav
 
 %build
 export OPT_JAR_LIST="ant/ant-junit junit"
-export CLASSPATH=$(build-classpath xml-commons-apis)
-ant all api api.impl
+export CLASSPATH=$(build-classpath xerces-j2 xml-commons-jaxp-1.3-apis)
+%{ant} all api api.impl
 CLASSPATH=$CLASSPATH:$(build-classpath junit):build/tests:build/lib/PullParser-2.1.10.jar
-java AllTests
+%{java} AllTests
 
 %install
-rm -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
 
 # jars
-mkdir -p %{buildroot}%{_javadir}
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
 
 cp -p build/lib/%{originalname}-intf-%{version}.jar \
-  %{buildroot}%{_javadir}/%{name}-intf-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-intf-%{version}.jar
 cp -p build/lib/%{originalname}-standard-%{version}.jar \
-  %{buildroot}%{_javadir}/%{name}-standard-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-standard-%{version}.jar
 cp -p build/lib/%{originalname}-%{version}.jar \
-  %{buildroot}%{_javadir}/%{name}-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
 cp -p build/lib/%{originalname}-x2-%{version}.jar \
-  %{buildroot}%{_javadir}/%{name}-x2-%{version}.jar
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-x2-%{version}.jar
+(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
 
 # javadoc
-mkdir -p %{buildroot}%{_javadocdir}/%{name}-%{version}/api
-mkdir -p %{buildroot}%{_javadocdir}/%{name}-%{version}/api_impl
-cp -pr doc/api/* %{buildroot}%{_javadocdir}/%{name}-%{version}/api
-cp -pr doc/api_impl/* %{buildroot}%{_javadocdir}/%{name}-%{version}/api_impl
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
+cp -pr doc/api/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
+#cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
 
 rm -rf doc/{build.txt,api,api_impl}
 
 # doc
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
-cp -pr doc/* %{buildroot}%{_datadir}/doc/%{name}-%{version}
-ln -s %{name}-%{version} %{buildroot}%{_datadir}/doc/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
+cp -pr doc/* $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/doc/%{name}
 
 # demo
-mkdir -p %{buildroot}%{_datadir}/%{name}-%{version}
-cp -pr src/java/samples/* %{buildroot}%{_datadir}/%{name}-%{version}
-ln -s %{name}-%{version} %{buildroot}%{_datadir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
+cp -pr src/java/samples/* $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-%clean
-rm -rf %{buildroot}
+%if %{gcj_support}
+%{_bindir}/aot-compile-rpm
+%endif
+
+%if %{gcj_support}
+%post
+%{update_gcjdb}
+
+%postun
+%{clean_gcjdb}
+%endif
 
 %files
 %defattr(0644,root,root,0755)
@@ -142,6 +158,10 @@ rm -rf %{buildroot}
 %{_javadir}/%{name}-standard-%{version}.jar
 %{_javadir}/%{name}-x2.jar
 %{_javadir}/%{name}-x2-%{version}.jar
+%if %{gcj_support}
+%dir %{_libdir}/gcj/%{name}
+%attr(-,root,root) %{_libdir}/gcj/%{name}/*
+%endif
 
 %files javadoc
 %defattr(0644,root,root,0755)
@@ -151,10 +171,14 @@ rm -rf %{buildroot}
 %files doc
 %defattr(0644,root,root,0755)
 %doc %{_datadir}/doc/%{name}-%{version}
-%doc %{_datadir}/doc/%{name}
 
 %files demo
 %defattr(0644,root,root,0755)
 %{_datadir}/%{name}-%{version}
 %{_datadir}/%{name}
 
+
+%changelog
+* Sat Dec 04 2010 Oden Eriksson <oeriksson@mandriva.com> 0:2.1.10-6.1.8mdv2011.0
++ Revision: 608231
+- rebuild
