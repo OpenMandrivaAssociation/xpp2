@@ -1,3 +1,4 @@
+%{?_javapackages_macros:%_javapackages_macros}
 # Copyright (c) 2000-2007, JPackage Project
 # All rights reserved.
 #
@@ -28,58 +29,44 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%define gcj_support  1
 %define originalname PullParser
 
 Summary:        XML Pull Parser
 Name:           xpp2
 Version:        2.1.10
-Release:        6.1.16
+Release:        18.1%{?dist}
 Epoch:          0
-License:        Apache Software License
+License:        xpp and ASL 1.1 and Public Domain
 URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
-Group:          Development/Java
+
 Source0:        http://www.extreme.indiana.edu/xgws/xsoap/xpp/download/PullParser2/PullParser2.1.10.tgz
 Patch0:         xpp2-build_xml.patch
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-junit >= 0:1.6
-BuildRequires:  java-devel
-BuildRequires:  java-rpmbuild >= 0:1.6
+BuildRequires:  jpackage-utils >= 0:1.6
 BuildRequires:  junit
-BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-jaxp-1.3-apis
-Requires:       xml-commons-jaxp-1.3-apis
+BuildRequires:  xml-commons-apis
+Requires:       xml-commons-apis
 Requires:       jpackage-utils
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%else
 BuildArch:      noarch
-BuildRequires:  java-devel
-%endif
-
+Provides:  xpp2-doc = 0:%{version}-%{release}
+Obsoletes: xpp2-doc < 0:2.1.10-18
 
 %description
 XML Pull Parser 2 (XPP2) is a simple and fast incremental XML parser.
-NOTE: XPP2 is no longer developed and is on maintenance mode. 
+NOTE: XPP2 is no longer developed and is on maintenance mode.
 All active development concentrates on its successor XPP3/MXP1.
 
 %package javadoc
 Summary:        Javadoc for %{name}
-Group:          Development/Java
+
 
 %description javadoc
 %{summary}.
 
-%package doc
-Summary:        Manual for %{name}
-Group:          Development/Java
-
-%description doc
-%{summary}.
-
 %package demo
 Summary:        Samples for %{name}
-Group:          Development/Java
+
 Requires:       %{name} = %{epoch}:%{version}
 
 %description demo
@@ -87,98 +74,136 @@ Requires:       %{name} = %{epoch}:%{version}
 
 %prep
 %setup -q -n %{originalname}%{version}
-%remove_java_binaries
+# remove all binary libs and prebuilt classes
+find \( -name *.class -o -name *.jar \) -delete
 
 %patch0 -b .sav
 
+# Fix encoding of licence file
+iconv -f ISO-8859-1 -t UTF-8 LICENSE.txt > LICENSE.txt.utf8
+mv LICENSE.txt.utf8 LICENSE.txt
+
 %build
-export OPT_JAR_LIST="ant/ant-junit junit"
-export CLASSPATH=$(build-classpath xerces-j2 xml-commons-jaxp-1.3-apis)
-%{ant} all api api.impl
+export CLASSPATH=$(build-classpath xml-commons-apis)
+ant all api api.impl
 CLASSPATH=$CLASSPATH:$(build-classpath junit):build/tests:build/lib/PullParser-2.1.10.jar
-%{java} AllTests
+java AllTests
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 # jars
 mkdir -p $RPM_BUILD_ROOT%{_javadir}
 
 cp -p build/lib/%{originalname}-intf-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-intf-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-intf.jar
 cp -p build/lib/%{originalname}-standard-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-standard-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-standard.jar
 cp -p build/lib/%{originalname}-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
+  $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
 cp -p build/lib/%{originalname}-x2-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-x2-%{version}.jar
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-x2.jar
 
 # javadoc
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
-cp -pr doc/api/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api
-#cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}/api_impl
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-
-
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}/api
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}/%{name}/api_impl
+cp -pr doc/api/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}/api
+cp -pr doc/api_impl/* $RPM_BUILD_ROOT%{_javadocdir}/%{name}/api_impl
 rm -rf doc/{build.txt,api,api_impl}
 
-# doc
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
-cp -pr doc/* $RPM_BUILD_ROOT%{_datadir}/doc/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/doc/%{name}
-
 # demo
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-cp -pr src/java/samples/* $RPM_BUILD_ROOT%{_datadir}/%{name}-%{version}
-ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_datadir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
+cp -pr src/java/samples/* $RPM_BUILD_ROOT%{_datadir}/%{name}
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+%pretrans javadoc
+# workaround for rpm bug, can be removed in F-23
+[ -L %{_javadocdir}/%{name} ] && \
+rm -rf $(readlink -f %{_javadocdir}/%{name}) %{_javadocdir}/%{name} || :
 
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-
-%postun
-%{clean_gcjdb}
-%endif
+%pretrans demo
+# workaround for rpm bug, can be removed in F-23
+[ -L %{_datadir}/%{name} ] && \
+rm -rf $(readlink -f %{_datadir}/%{name}) %{_datadir}/%{name} || :
 
 %files
-%defattr(0644,root,root,0755)
-%doc README.html
-%doc LICENSE.txt
+%doc LICENSE.txt README.html doc
 %{_javadir}/%{name}.jar
-%{_javadir}/%{name}-%{version}.jar
 %{_javadir}/%{name}-intf.jar
-%{_javadir}/%{name}-intf-%{version}.jar
 %{_javadir}/%{name}-standard.jar
-%{_javadir}/%{name}-standard-%{version}.jar
 %{_javadir}/%{name}-x2.jar
-%{_javadir}/%{name}-x2-%{version}.jar
-%if %{gcj_support}
-%dir %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/*
-%endif
 
 %files javadoc
-%defattr(0644,root,root,0755)
-%doc %{_javadocdir}/%{name}-%{version}
-%doc %{_javadocdir}/%{name}
-
-%files doc
-%defattr(0644,root,root,0755)
-%doc %{_datadir}/doc/%{name}-%{version}
+%doc LICENSE.txt
+%{_javadocdir}/%{name}
 
 %files demo
-%defattr(0644,root,root,0755)
-%{_datadir}/%{name}-%{version}
 %{_datadir}/%{name}
 
-
 %changelog
-* Sat Dec 04 2010 Oden Eriksson <oeriksson@mandriva.com> 0:2.1.10-6.1.8mdv2011.0
-+ Revision: 608231
-- rebuild
+* Mon Aug 26 2013 Mat Booth <fedora@matbooth.co.uk> - 0:2.1.10-18
+- Update for newer guidelines, drop versioned jars, duplicate docs
+- Fixes rhbz #993885, rhbz #1001270
+
+* Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-17
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Tue May 14 2013 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:2.1.10-16
+- Remove prebuilt classes
+- Resolves: rhbz#959429
+
+* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-15
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
+* Wed Aug 15 2012 Stanislav Ochotnicky <sochotnicky@redhat.com> - 0:2.1.10-14
+- The license is actually a mixture of ASL 1.1, xpp and Public Domain
+
+* Wed Aug 15 2012 Stanislav Ochotnicky <sochotnicky@redhat.com> - 0:2.1.10-13
+- Fix license from ASL to xpp (new license type)
+
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-11.3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-10.3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-9.3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Wed Mar 10 2010 Peter Lemenkov <lemenkov@gmail.com> - 0:2.1.10-8.3
+- Added missing requires - jpackage-utils
+
+* Mon Jul 27 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-8.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Thu Feb 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:2.1.10-7.2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Thu Jul 10 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 0:2.1.10-6.2
+- drop repotag
+- fix license tag
+
+* Tue Feb 13 2007 Permaine Cheung <pcheung@redhat.com> - 0:2.1.10-6jpp.1
+- Fix release, license, buildroot, typo, and other rpmlint issues.
+- Got rid of Vendor and Distribution.
+- Rename manual subpackage to doc.
+- Move README and LICENSE file back into main package, and mark all docs.
+
+* Tue Apr 11 2006 Ralph Apel <r.apel at r-apel.de> - 0:2.1.10-6jpp
+- First JPP-1.7 release
+
+* Wed Aug 10 2005 Ralph Apel <r.apel at r-apel.de> - 0:2.1.10-5jpp
+- Fix Bug 17 installed but unpackaged symlinks
+- Patch build.xml for source=1.4 and target=1.4
+
+* Thu Aug 26 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.1.10-4jpp
+- Build with ant-1.6.2
+- Relax some versioned dependencies
+
+* Tue Jun 01 2004 Randy Watler <rwatler at finali.com> - 0:2.1.10-3jpp
+- Upgrade to Ant 1.6.X
+
+* Mon Jan 19 2004 Ralph Apel <r.apel@r-apel.de> - 0:2.1.10-2jpp
+- Fix rpm var _originalname to originalname
+- Include versionless symlinks for javadoc, manual and demo
+- demo requires main package
+
+* Thu Jan 15 2004 Ralph Apel <r.apel@r-apel.de> - 0:2.1.10-1jpp
+- First JPackage build
