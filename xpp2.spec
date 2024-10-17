@@ -37,7 +37,7 @@ Version:        2.1.10
 Release:        18.1%{?dist}
 Epoch:          0
 License:        xpp and ASL 1.1 and Public Domain
-URL:            http://www.extreme.indiana.edu/xgws/xsoap/xpp/
+URL:            https://www.extreme.indiana.edu/xgws/xsoap/xpp/
 
 Source0:        http://www.extreme.indiana.edu/xgws/xsoap/xpp/download/PullParser2/PullParser2.1.10.tgz
 Patch0:         xpp2-build_xml.patch
